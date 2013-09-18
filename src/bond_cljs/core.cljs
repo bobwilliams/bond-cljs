@@ -1,20 +1,21 @@
-(ns bond-cljs.core
-	(:require [bond-cljs.views :as views]
+(ns bond-cljs.corse
+	(:require [bond-cljs.view.templates :as templates]
+            [bond-cljs.view.functions :as vfun]
             [bond-cljs.chat :as chat]))
 
 ;; TODO: From Config File
-(def config {:display-name "Skeezy McFly"
-             :accounts [{:user "mcskeezy@gmail.com"
-                         :pass "sUp3rS3Cr3t"
+(def config {:display-name "gilbertw1"
+             :accounts [{:user "gilbertw1@gmail.com"
+                         :pass "mejoqecyqujcfqqp"
                          :host "talk.google.com"
                          :port 5222
                          :reconnect true}]})
 
 ;; Render Initial Page
-(views/render-page (views/chat-page (:display-name config) []))
+(vfun/render-page (templates/main-page (:display-name config) []))
 
 ;; Bind Page Events
-(views/bind-events)
+(vfun/bind-events)
 
 ;; Connect Accounts
 (def chat-connections (map chat/connect-account (:accounts config)))
@@ -23,4 +24,4 @@
 (def chat-streams (map chat/event-stream chat-connections))
 
 ;; Bind Event Streams to UI
-(doseq [s chat-streams] (views/bind-event-stream s))
+(doseq [s chat-streams] (vfun/bind-event-stream s))

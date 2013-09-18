@@ -1,19 +1,15 @@
-(ns bond-cljs.views
+(ns bond-cljs.view.functions
   (:use-macros [dommy.macros :only [node deftemplate sel sel1]])
   (:require [clojure.string :as str]
             [dommy.utils :as utils]
-            [dommy.core :as dommy]))
-
-(defn make-id [user]
-  (str/replace user #"[^\w]" "-"))
+            [dommy.core :as dommy]
+            [bond-cljs.view.templates :as templates :refer [make-id make-chat-id]]))
 
 (defn render-page [page]
   (dommy/append! (sel1 :body) page))
 
-(defn contact-for [username]
-  [:a {:href "" :id (make-id username)}
-    [:i.glyphicon.glyphicon-user]
-    [:span username]])
+(defn sel-id [id]
+  (sel1 (str "#" id)))
 
 (defn toggle-side-menu []
   (dommy/toggle-class! (sel1 :body) "side-menu-expanded"))
@@ -26,26 +22,31 @@
   (Mousetrap/bind "ctrl+u" #(show-dev-tools))
   (dommy/listen! (sel1 :#nav-toggle) :click toggle-side-menu))
 
-(deftemplate chat-page [username users]
-  [:div#contacts-page
-    [:div#header
-      [:a#nav-toggle.glyphicon.glyphicon-circle-arrow-right {:href "#"}]
-      [:a#settings-button.glyphicon.glyphicon-cog {:href "#"}]
-      [:h1 username]]
-    [:div#side-menu
-      [:h3 "Contacts"]
-      (map contact-for users)]
-    [:div.container
-      [:h1 "Bond"]]])
+(defn add-chat [user]
+  (dommy/append! (sel1 :#chat-tabs) (templates/user-chat user)))
+
+(defn unfocus-current-chat []
+  (map #(dommy/remove-class! % :active) (sel :#chat-tabs>li)))
+
+(defn focus-chat [user]
+  (unfocus-current-chat)
+  (dommy/add-class! (sel-id (make-chat-id user)) :active))
+
+(defn chat-user [user]
+  (let [user-chat (sel-id (make-chat-id user))]
+    (when (nil? user-chat)
+      (add-chat user))
+    (focus-chat user)))
 
 (defn add-user [user]
-  (dommy/append! (sel1 :#side-menu) (contact-for user)))
+  (dommy/append! (sel1 :#side-menu) (templates/contact-item user))
+  (dommy/listen! (sel-id (make-id user)) :click #(do (.preventDefault %) (chat-user user))))
 
 (defn ensure-user-removed [user]
-  (map dommy/remove! (sel (str "#" (make-id user)))))
+  (map dommy/remove! (sel-id (make-id user))))
 
 (defn ensure-user-exists [user]
-  (let [existing-user (sel1 (str "#" (make-id user)))]
+  (let [existing-user (sel-id (make-id user))]
     (when (nil? existing-user)
       (add-user user))))
 
