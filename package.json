@@ -1,6 +1,6 @@
 {
   "name": "bond-cljs",
-  "main": "http://localhost:3000/index.html",
+  "main": "public/index.html",
   "version": "0.1.0",
   "window": {
     "title": "bond-cljs",

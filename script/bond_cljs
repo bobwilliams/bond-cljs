@@ -56,11 +56,11 @@ nw="/Applications/node-webkit.app/Contents/MacOS/node-webkit"
 
 # Serve html localy to support browser connected REPL
 
-if pgrep app.js
-then
-    donothing=0
-else
-    node app.js &
-fi
+#if pgrep app.js
+#then
+#    donothing=0
+#else
+#    node app.js &
+#fi
 
 ${nw} $(pwd) $@
