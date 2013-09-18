@@ -5,7 +5,6 @@
             [bond-cljs.chat :as chat]))
 
 (def fs (node/require "fs"))
-;(def path (node/require "path"))
 (def user-home (or (.-HOME process/env) (.-HOMEPATH process/env) (.-USERPROFILE process/env)))
 (def bond-dir (str user-home "/.bond-cljs"))
 (def bond-conf (str bond-dir "/" "conf.json"))
@@ -21,8 +20,6 @@
 ;; Read config file
 (def config-json (.readFileSync fs bond-conf))
 (def config (-> config-json JSON/parse (js->clj :keywordize-keys true)))
-
-(println config)
 
 ;; Render Initial Page
 (vfun/render-page (templates/main-page (or (:display-name config) "User") []))
