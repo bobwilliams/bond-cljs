@@ -11,5 +11,5 @@
             [lein-lesscss "1.3-SNAPSHOT"]]
   :cljsbuild {:builds [{:source-paths ["src" "test"]
                         :compiler {:output-to     "public/js/bond-cljs.js"
-                                   :optimizations :advanced  ;; :advanced,:whitespace
+                                   :optimizations :whitespace  ;; :advanced,:whitespace
                                    :pretty-print  true}}]})

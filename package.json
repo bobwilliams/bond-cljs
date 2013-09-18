@@ -13,6 +13,20 @@
   "node-remote": "<local>",
   "devDependencies": {
     "connect" : "*"
-  }
+  },
+  "dependencies": {
+    "node-xmpp": "0.3.1",
+    "nw-gyp": "~0.10.9",
+    "baconjs": "0.6.8"
+  },
+  "window": {
+        "title": "Bond - Platinum Edition",
+        "min_width": 500,
+        "min_height": 400,
+        "toolbar": false,
+        "frame": true,
+        "resizable": true,
+        "position": "mouse"
+    }
 }
 
