@@ -87,8 +87,8 @@
   (let [client (connect account)]
     (doto client
       (.on "online" (fn []
-                       (.log js/console "Connected!!")
-                       (.send client (bond-cljs.chat.xmpp.Element. "presence"))))
+                      (.log js/console "Connected!!")
+                      (.send client (bond-cljs.chat.xmpp.Element. "presence"))))
       (.on "error" (fn [err]
                      (.log js/console (str "Error!!!: " err)))))))
 

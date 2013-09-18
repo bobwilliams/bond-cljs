@@ -5,7 +5,7 @@
             [dommy.core :as dommy]))
 
 (defn make-id [user]
-  (str "#" (str/replace user #"[^\w]" "-")))
+  (str/replace user #"[^\w]" "-"))
 
 (defn render-page [page]
   (dommy/append! (sel1 :body) page))
@@ -18,7 +18,12 @@
 (defn toggle-side-menu []
   (dommy/toggle-class! (sel1 :body) "side-menu-expanded"))
 
+(defn show-dev-tools []
+  (-> (js/require "nw.gui") (.-Window) (.get) (.showDevTools)))
+
 (defn bind-events []
+  (Mousetrap/bind "ctrl+p" #(toggle-side-menu))
+  (Mousetrap/bind "ctrl+u" #(show-dev-tools))
   (dommy/listen! (sel1 :#nav-toggle) :click toggle-side-menu))
 
 (deftemplate chat-page [username users]
@@ -37,10 +42,10 @@
   (dommy/append! (sel1 :#side-menu) (contact-for user)))
 
 (defn ensure-user-removed [user]
-  (map dommy/remove! (sel (make-id user))))
+  (map dommy/remove! (sel (str "#" (make-id user)))))
 
 (defn ensure-user-exists [user]
-  (let [existing-user (sel1 (make-id user))]
+  (let [existing-user (sel1 (str "#" (make-id user)))]
     (when (nil? existing-user)
       (add-user user))))
 
