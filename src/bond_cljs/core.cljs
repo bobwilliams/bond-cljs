@@ -1,18 +1,31 @@
 (ns bond-cljs.corse
-	(:require [bond-cljs.view.templates :as templates]
+	(:require [cljs.nodejs :as node]
+            [bond-cljs.view.templates :as templates]
             [bond-cljs.view.functions :as vfun]
             [bond-cljs.chat :as chat]))
 
-;; TODO: From Config File
-(def config {:display-name "gilbertw1"
-             :accounts [{:user "gilbertw1@gmail.com"
-                         :pass "mejoqecyqujcfqqp"
-                         :host "talk.google.com"
-                         :port 5222
-                         :reconnect true}]})
+(def fs (node/require "fs"))
+;(def path (node/require "path"))
+(def user-home (or (.-HOME process/env) (.-HOMEPATH process/env) (.-USERPROFILE process/env)))
+(def bond-dir (str user-home "/.bond-cljs"))
+(def bond-conf (str bond-dir "/" "conf.json"))
+
+;; Ensure Bond Directory Exists
+(when-not (.existsSync fs bond-dir)
+  (.mkdirSync fs bond-dir))
+
+;; Ensure Bond Config Exists
+(when-not (.existsSync fs bond-conf)
+  (.writeFileSync fs bond-conf "{}"))
+
+;; Read config file
+(def config-json (.readFileSync fs bond-conf))
+(def config (-> config-json JSON/parse (js->clj :keywordize-keys true)))
+
+(println config)
 
 ;; Render Initial Page
-(vfun/render-page (templates/main-page (:display-name config) []))
+(vfun/render-page (templates/main-page (or (:display-name config) "User") []))
 
 ;; Bind Page Events
 (vfun/bind-events)

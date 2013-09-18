@@ -1,0 +1,12 @@
+{
+    "display-name": "UserName",
+    "accounts": [
+        {
+            "user": "user@gmail.com",
+            "pass": "s3cr3tp@ss",
+            "host": "talk.google.com",
+            "port": 5222,
+            "reconnect": true
+        }
+    ]
+}
