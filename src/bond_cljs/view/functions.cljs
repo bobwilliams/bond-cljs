@@ -33,23 +33,6 @@
   (unfocus-current-chat)
   (dommy/add-class! (sel-id (make-chat-id user)) :active))
 
-(defn add-user [user]
-  (dommy/append! (sel1 :#side-menu) (templates/contact-item user))
-  (dommy/listen! (sel-id (make-id user)) :click #(.preventDefault %))) ;; TODO: Chat user
-
-(defn ensure-user-removed [user]
-  (map dommy/remove! (sel-id (make-id user))))
-
-(defn ensure-user-exists [user]
-  (let [existing-user (sel-id (make-id user))]
-    (when (nil? existing-user)
-      (add-user user))))
-
-(defn handle-status-event [{:keys [from from-resource to status]}]
-  (cond
-    (= status :offline) (ensure-user-removed from)
-    (= status :online) (ensure-user-exists from)))
-
 (defn bind-event-stream [event-stream]
   (let [chat-stream (.filter event-stream #(= (:type %) :message))
         status-stream (.filter event-stream #(= (:type %) :status-update))
