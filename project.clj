@@ -9,7 +9,7 @@
                  [prismatic/dommy "0.1.1"]]
   :plugins [[lein-cljsbuild "0.3.2"]
             [lein-lesscss "1.3-SNAPSHOT"]]
-  :cljsbuild {:builds [{:source-paths ["src"]
+  :cljsbuild {:builds [{:source-paths ["src" "clobber/src" "clang/src"]
                         :compiler {:output-to     "public/js/bond-cljs.js"
                                    :optimizations :whitespace  ;; :advanced,:whitespace
                                    :pretty-print  true}}]})

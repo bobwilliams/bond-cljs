@@ -16,15 +16,12 @@
     [:a#settings-button.glyphicon.glyphicon-cog {:href "#"}]
     [:h1 username]])
 
-(deftemplate contact-item [username]
-  [:a {:href "" :id (make-id username)}
-    [:i.glyphicon.glyphicon-user]
-    [:span username]])
-
-(deftemplate contacts-list [users]
-  [:div#side-menu
+(deftemplate contacts-list []
+  [:div#side-menu {:ng-app "bond.contactList" :ng-controller "ContactListCtrl"}
     [:h3 "Contacts"]
-    (map contact-item users)])
+    [:a {:href "#" :clang-repeat "contact in contacts"}
+      [:i.glyphicon.glyphicon-user]
+      [:span "{{contact}}"]]])
 
 (deftemplate settings-menu []
   [:div#settings])
@@ -37,9 +34,9 @@
   [:li {:id (make-chat-id username)} 
       [:a username]])
 
-(deftemplate main-page [username users]
+(deftemplate main-page [username]
   [:div#contacts-page
     (nav-bar username)
-    (contacts-list users)
+    (contacts-list)
     (settings-menu)
     (chat-area)])

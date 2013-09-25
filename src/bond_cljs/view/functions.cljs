@@ -3,7 +3,8 @@
   (:require [clojure.string :as str]
             [dommy.utils :as utils]
             [dommy.core :as dommy]
-            [bond-cljs.view.templates :as templates :refer [make-id make-chat-id]]))
+            [bond-cljs.view.templates :as templates :refer [make-id make-chat-id]]
+            [bond-cljs.view.contact-list :as contacts]))
 
 (defn render-page [page]
   (dommy/append! (sel1 :body) page))
@@ -32,15 +33,9 @@
   (unfocus-current-chat)
   (dommy/add-class! (sel-id (make-chat-id user)) :active))
 
-(defn chat-user [user]
-  (let [user-chat (sel-id (make-chat-id user))]
-    (when (nil? user-chat)
-      (add-chat user))
-    (focus-chat user)))
-
 (defn add-user [user]
   (dommy/append! (sel1 :#side-menu) (templates/contact-item user))
-  (dommy/listen! (sel-id (make-id user)) :click #(do (.preventDefault %) (chat-user user))))
+  (dommy/listen! (sel-id (make-id user)) :click #(.preventDefault %))) ;; TODO: Chat user
 
 (defn ensure-user-removed [user]
   (map dommy/remove! (sel-id (make-id user))))
@@ -61,4 +56,4 @@
         activity-stream (.filter event-stream #(= (:type %) :activity))]
     ;(.onValue chat-stream #(.log js/console (str "CHAT: " %)))
     ;(.onValue activity-stream #(.log js/console (str "ACTIVITY: " %)))
-    (.onValue status-stream handle-status-event)))
+    (contacts/react-to-status-stream status-stream)))

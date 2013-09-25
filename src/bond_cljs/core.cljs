@@ -22,7 +22,7 @@
 (def config (-> config-json JSON/parse (js->clj :keywordize-keys true)))
 
 ;; Render Initial Page
-(vfun/render-page (templates/main-page (or (:display-name config) "User") []))
+(vfun/render-page (templates/main-page (or (:display-name config) "User")))
 
 ;; Bind Page Events
 (vfun/bind-events)
