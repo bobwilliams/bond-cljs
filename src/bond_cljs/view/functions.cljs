@@ -36,7 +36,9 @@
 (defn bind-event-stream [event-stream]
   (let [chat-stream (.filter event-stream #(= (:type %) :message))
         status-stream (.filter event-stream #(= (:type %) :status-update))
-        activity-stream (.filter event-stream #(= (:type %) :activity))]
+        activity-stream (.filter event-stream #(= (:type %) :activity))
+        roster-stream (.filter event-stream #(= (:type %) :roster))]
     ;(.onValue chat-stream #(.log js/console (str "CHAT: " %)))
     ;(.onValue activity-stream #(.log js/console (str "ACTIVITY: " %)))
-    (contacts/react-to-status-stream status-stream)))
+    (contacts/react-to-status-stream status-stream)
+    (contacts/react-to-roster-stream roster-stream)))

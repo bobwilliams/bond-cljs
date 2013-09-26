@@ -20,8 +20,8 @@
   [:div#side-menu {:ng-app "bond.contactList" :ng-controller "ContactListCtrl"}
     [:h3 "Contacts"]
     [:a {:href "#" :clang-repeat "contact in contacts"}
-      [:i.glyphicon.glyphicon-user]
-      [:span "{{contact}}"]]])
+      [:i.glyphicon.glyphicon-user {:style "{{(contact-status-css contact)}}"}]
+      [:span "{{(:name contact)}}"]]])
 
 (deftemplate settings-menu []
   [:div#settings])

@@ -11,5 +11,5 @@
             [lein-lesscss "1.3-SNAPSHOT"]]
   :cljsbuild {:builds [{:source-paths ["src" "clobber/src" "clang/src"]
                         :compiler {:output-to     "public/js/bond-cljs.js"
-                                   :optimizations :whitespace  ;; :advanced,:whitespace
+                                   :optimizations :simple  ;; :advanced,:whitespace
                                    :pretty-print  true}}]})

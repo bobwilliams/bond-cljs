@@ -17,17 +17,6 @@
 (defn- get-text [obj]
   (when obj (.getText obj)))
 
-(defn- is-presence? [stanza]
-  (.is stanza "presence"))
-
-(defn- is-message? [stanza attrs]
-  (and
-    (.is stanza "message")
-    (= (:type attrs) "chat")))
-
-(defn- is-activity? [stanza]
-  (.is stanza "message"))
-
 (defn- get-state [stanza]
   (when-let [show-child (.getChild stanza "show")]
     (get-text show-child)))
@@ -37,6 +26,7 @@
     (cond
       (-> attrs :type (= "unavailable")) :offline
       (nil? state) :online
+      (= state "away") :away
       :else :online)))
 
 (defn- get-activity [stanza]
@@ -52,10 +42,40 @@
    :to (.-to attrs)
    :id (.-id attrs)})
 
+(defn- presence-element [] 
+  (bond-cljs.chat.xmpp.Element. "presence"))
+
+(defn- roster-element []
+  (-> (bond-cljs.chat.xmpp.Element. "iq" (js-obj "type" "get"))
+      (.c "query" (js-obj "xmlns" "jabber:iq:roster"))))
+
+(defn- is-roster? [stanza]
+  (-> stanza (.getChild "query") (.is "query" "jabber:iq:roster")))
+
+(defn- is-presence? [stanza]
+  (.is stanza "presence"))
+
+(defn- is-message? [stanza attrs]
+  (and
+    (.is stanza "message")
+    (= (:type attrs) "chat")))
+
+(defn- is-activity? [stanza]
+  (.is stanza "message"))
+
 (defn- convert-presence [stanza attrs]
   (merge (users-and-resources attrs)
          {:type :status-update
           :status (get-status stanza attrs)}))
+
+(defn- convert-roster-entry [entry]
+  (let [attrs (.-attrs entry)]
+    {:jid (-> attrs (.-jid))
+     :name (-> attrs (.-name))}))
+
+(defn- convert-roster [stanza attrs]
+  {:type :roster
+   :roster (-> stanza (.getChild "query") (.getChildren "item") js->clj (.map convert-roster-entry) js->clj)})
 
 (defn- convert-message [stanza attrs]
   (merge (users-and-resources attrs)
@@ -71,6 +91,7 @@
   (let [attrs (convert-attrs (.-attrs stanza))]
     (cond
       (is-presence? stanza) (convert-presence stanza attrs)
+      (is-roster? stanza) (convert-roster stanza attrs)
       (is-message? stanza attrs) (convert-message stanza attrs)
       (is-activity? stanza) (convert-activity stanza attrs)
       :else {:type "unknown" :attrs attrs})))
@@ -87,11 +108,16 @@
   (let [client (connect account)]
     (doto client
       (.on "online" (fn []
-                      (.log js/console "Connected!!")
-                      (.send client (bond-cljs.chat.xmpp.Element. "presence"))))
+                      (println "Connected!!")
+                      (.send client (presence-element))
+                      (.send client (roster-element))))
       (.on "error" (fn [err]
-                     (.log js/console (str "Error!!!: " err)))))))
+                     (println "Error!!!: " err))))
+    {:account-jid (:user account)
+     :xmpp-client client}))
 
-(defn event-stream [connection]
-  (let [stream (.fromEventTarget bacon connection "stanza")]
-    (.map stream convert-stanza-event)))
+(defn event-stream [{:keys [xmpp-client account-jid]}]
+  (let [stream (.fromEventTarget bacon xmpp-client "stanza")]
+    (-> stream
+        (.map convert-stanza-event)
+        (.map #(conj % [:account-jid account-jid])))))
