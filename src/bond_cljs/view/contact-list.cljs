@@ -1,8 +1,8 @@
 (ns bond-cljs.view.contact-list
-  (:require-macros [clang.angular :refer [def.controller defn.scope def.filter fnj]])
+  (:require-macros [bond-cljs.angular.macros :refer [def.controller defn.scope fnj]])
   (:require [clojure.string :as cs]
             [cljs.nodejs :as node])
-  (:use [clang.util :only [? module]]))
+  (:use [bond-cljs.angular.util :only [module]]))
 
 (def status-order {:offline 2
                    :away 1
@@ -32,11 +32,11 @@
 (defn replace-contacts [contacts-set]
   (let [js-contacts (clj->js contacts-set)]
     (reset! contact-list contacts-set)
-    (apply-scope #(assoc! @scope :contacts js-contacts))))
+    (apply-scope #(aset @scope "contacts" js-contacts))))
 
 (def.controller m ContactListCtrl [$scope]
   (reset! scope $scope)
-  (assoc! $scope :contacts (clj->js @contact-list))
+  (aset $scope "contacts" (clj->js @contact-list))
   
   (defn.scope contactStatusCss [contact]
     (condp = (.-status contact)
