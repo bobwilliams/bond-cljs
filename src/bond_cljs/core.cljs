@@ -26,12 +26,12 @@
 
 ;; Bind Page Events
 (vfun/bind-events)
+(js/setTimeout (fn []
+  ;; Connect Accounts
+  (def chat-connections (map chat/connect-account (:accounts config)))
 
-;; Connect Accounts
-(def chat-connections (map chat/connect-account (:accounts config)))
+  ;; Create Chat Event Observable
+  (def chat-streams (map chat/event-stream chat-connections))
 
-;; Create Chat Event Observable
-(def chat-streams (map chat/event-stream chat-connections))
-
-;; Bind Event Streams to UI
-(doseq [s chat-streams] (vfun/bind-event-stream s))
+  ;; Bind Event Streams to UI
+  (doseq [s chat-streams] (vfun/bind-event-stream s))) 4000)

@@ -1,16 +1,8 @@
 (ns bond-cljs.view.contact-list
   (:require-macros [clang.angular :refer [def.controller defn.scope def.filter fnj]])
   (:require [clojure.string :as cs]
-            [cljs.nodejs :as node]
-            clobber.core
-            clang.directive.clangRepeat)
+            [cljs.nodejs :as node])
   (:use [clang.util :only [? module]]))
-
-(def m (module "bond.contactList" ["clang"]))
-(def scope (atom nil))
-
-(defn apply-scope [fun]
-  (.$apply @scope fun))
 
 (def status-order {:offline 2
                    :away 1
@@ -24,20 +16,32 @@
 (defn contact-sorted-set []
   (sorted-set-by contact-sort))
 
+(def m (module "bond.contactList" []))
+(def scope (atom nil))
+(def contact-list (atom (contact-sorted-set)))
+
+(defn apply-scope [fun]
+  (.$apply @scope fun))
+
 (defn make-set [contacts]
   (into (contact-sorted-set) contacts))
 
+(defn time-m []
+  (.getTime (js/Date.)))
+
 (defn replace-contacts [contacts-set]
-  (apply-scope #(assoc! @scope :contacts contacts-set)))
+  (let [js-contacts (clj->js contacts-set)]
+    (reset! contact-list contacts-set)
+    (apply-scope #(assoc! @scope :contacts js-contacts))))
 
 (def.controller m ContactListCtrl [$scope]
   (reset! scope $scope)
-  (assoc! $scope :contacts (contact-sorted-set))
+  (assoc! $scope :contacts (clj->js @contact-list))
   
-  (defn.scope contact-status-css [{status :status}]
-    (condp = status
-      :online "color: green;"
-      :away "color: orange;"
+  (defn.scope contactStatusCss [contact]
+    (condp = (.-status contact)
+      "online" "color: green;"
+      "away" "color: orange;"
       "")))
 
 (defn maybe-update-status [contact jid status]
@@ -45,18 +49,19 @@
     (conj contact [:status status])
     contact))
 
-(defn update-contact-status [contacts jid status]
-  (if (not-any? #(= jid (:jid %)) contacts)
-    (conj contacts {:jid jid :name jid :status status})
-    (map #(maybe-update-status % jid status) contacts)))
+(defn update-contact-status [contacts {:keys [from from-resource to status]}]
+  (if (not-any? #(= from (:jid %)) contacts)
+    (conj contacts {:jid from :name from :status status})
+    (map #(maybe-update-status % from status) contacts)))
 
-(defn handle-status-event [{:keys [from from-resource to status]}]
-  (let [contacts (:contacts @scope)
-        updated-contacts (update-contact-status contacts from status)]
+(defn handle-status-events [events]
+  (let [contacts @contact-list
+        updated-contacts (.reduce events #(update-contact-status %1 %2) contacts)]
     (replace-contacts (make-set updated-contacts))))
 
 (defn react-to-status-stream [status-stream]
-  (.onValue status-stream handle-status-event))
+  (let [buffered-stream (.bufferWithTime status-stream 100)]
+    (.onValue buffered-stream handle-status-events)))
 
 (defn maybe-update-name [contact jid name]
   (if (= jid (:jid contact))
@@ -70,12 +75,9 @@
       (map #(maybe-update-name % jid disp-name) contacts))))
 
 (defn handle-roster-event [{:keys [to to-resource roster]}]
-  (println "starting update")
-  (let [contacts (:contacts @scope)
+  (let [contacts @contact-list
         updated-contacts (reduce update-contact-from-roster-entry contacts roster)]
-    (println "updated data structure")
-    (replace-contacts (make-set updated-contacts))
-    (println "updated UI")))
+    (replace-contacts (make-set updated-contacts))))
 
 (defn react-to-roster-stream [roster-stream]
   (.onValue roster-stream handle-roster-event))
