@@ -27,6 +27,10 @@ Install Node Modules
 
     npm install
 
+Patch Expat Node Module
+
+    ./script/nw-gyp-repair.sh
+
 Run Bond
 
     ./script/bond_cljs
