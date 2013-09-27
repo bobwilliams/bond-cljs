@@ -5,12 +5,18 @@
     <link rel="stylesheet" href="css/bond.css" />
     <script src="js/jquery-2.0.3.js" type="text/javascript"></script>
     <script src="js/mousetrap.min.js" type="text/javascript"></script>
-    <script src="js/angular.min.js" type="text/javascript"></script>
+    <script src="js/angular.min2rc.js" type="text/javascript"></script>
   </head>
   <body>
     <div id="main-container">
     </div>
     <script src="js/bond-cljs.js" type="text/javascript"> </script>
+    <script>
+       angular.element(document).ready(function() {
+         angular.bootstrap($('#settings-bar'), ['bond.settings']);
+         angular.bootstrap($('#contacts-bar'), ['bond.contactList']);
+       });
+    </script>
     <script type="text/javascript">
       // Initialize cljs code
       //bond_cljs.core.init();

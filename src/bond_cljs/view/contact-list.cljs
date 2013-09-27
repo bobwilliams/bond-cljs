@@ -1,42 +1,31 @@
 (ns bond-cljs.view.contact-list
   (:require-macros [bond-cljs.angular.macros :refer [def.controller defn.scope fnj]])
   (:require [clojure.string :as cs]
-            [cljs.nodejs :as node])
+            [cljs.nodejs :as node]
+            [bond-cljs.global :as g]
+            [bond-cljs.util :as u])
   (:use [bond-cljs.angular.util :only [module]]))
-
-(def status-order {:offline 2
-                   :away 1
-                   :online 0})
-
-(defn contact-sort [{xname :name xjid :jid xstatus :status} {yname :name yjid :jid ystatus :status}]  
-  (if (not= xstatus ystatus)
-    (compare (get status-order xstatus) (get status-order ystatus))
-    (compare (str (cs/lower-case xname) xjid) (str (cs/lower-case yname) yjid))))
-
-(defn contact-sorted-set []
-  (sorted-set-by contact-sort))
 
 (def m (module "bond.contactList" []))
 (def scope (atom nil))
-(def contact-list (atom (contact-sorted-set)))
 
 (defn apply-scope [fun]
   (.$apply @scope fun))
 
 (defn make-set [contacts]
-  (into (contact-sorted-set) contacts))
+  (into (u/contact-sorted-set) contacts))
 
 (defn time-m []
   (.getTime (js/Date.)))
 
 (defn replace-contacts [contacts-set]
   (let [js-contacts (clj->js contacts-set)]
-    (reset! contact-list contacts-set)
+    (reset! g/contact-list contacts-set)
     (apply-scope #(aset @scope "contacts" js-contacts))))
 
 (def.controller m ContactListCtrl [$scope]
   (reset! scope $scope)
-  (aset $scope "contacts" (clj->js @contact-list))
+  (aset $scope "contacts" (clj->js @g/contact-list))
   
   (defn.scope contactStatusCss [contact]
     (condp = (.-status contact)
@@ -55,7 +44,7 @@
     (map #(maybe-update-status % from status) contacts)))
 
 (defn handle-status-events [events]
-  (let [contacts @contact-list
+  (let [contacts @g/contact-list
         updated-contacts (.reduce events #(update-contact-status %1 %2) contacts)]
     (replace-contacts (make-set updated-contacts))))
 
@@ -75,7 +64,7 @@
       (map #(maybe-update-name % jid disp-name) contacts))))
 
 (defn handle-roster-event [{:keys [to to-resource roster]}]
-  (let [contacts @contact-list
+  (let [contacts @g/contact-list
         updated-contacts (reduce update-contact-from-roster-entry contacts roster)]
     (replace-contacts (make-set updated-contacts))))
 

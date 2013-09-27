@@ -5,8 +5,12 @@ body {
 	top: @header-height;
 	.transition(left 0.3s ease);
 
-	&.side-menu-expanded {
-		left: @menu-width;
+	&.contacts-bar-expanded {
+		left: @contacts-bar-width;
+	}
+
+	&.settings-bar-expanded {
+		right: @settings-bar-width;
 	}
 }
 
@@ -21,5 +25,27 @@ a {
 		&:hover {
 			color: @link-hover-color;
 		}
+	}
+}
+
+input[type='text'], input[type='password'] {
+	border: 1px solid #222;
+	border-style: solid;
+	padding: 3px 10px;
+	font-weight: lighter;
+	letter-spacing: 0.1em;
+	color: #eee;
+	background-color: #444;
+	border-radius: 8px;
+
+	&:focus {
+		outline: none;
+		background-color: #666;
+		border-color: #aaa;	
+	}
+
+	&[disabled] {
+		color: #999;
+		cursor: not-allowed;
 	}
 }

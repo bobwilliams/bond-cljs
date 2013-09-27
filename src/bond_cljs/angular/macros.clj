@@ -10,3 +10,13 @@
 
 (defmacro defn.scope [n args & body]
   `(aset ~'$scope ~(name n) (fn ~args ~@body)))
+
+(defmacro def.directive [module n args & body]
+  (let [body (if (map? (last body))
+               (conj (pop body) `(reduce (fn [obj# [k# v#]]
+                                           (aset obj# (name k#) v#)
+                                           obj#)
+                                         (js-obj)
+                                         ~(last body)))
+               body)]
+    `(.directive ~module ~(name n) (fnj ~args ~@body))))
