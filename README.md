@@ -27,7 +27,7 @@ Install Node Modules
 
     npm install
 
-Patch Expat Node Module
+Patch Native Modules
 
     ./script/nw-gyp-repair.sh
 
