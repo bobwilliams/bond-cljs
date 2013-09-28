@@ -3,7 +3,8 @@
   (:require [clojure.string :as str]
             [dommy.utils :as utils]
             [dommy.core :as dommy]
-            [bond-cljs.view.contact-list :as contacts]))
+            [bond-cljs.view.contact-list :as contacts]
+            [bond-cljs.theme :as theme]))
 
 (defn render-page! [page]
   (dommy/append! (sel1 :body) page))
@@ -27,6 +28,7 @@
   (Mousetrap/bind "ctrl+p" #(toggle-contacts-bar))
   (Mousetrap/bind "ctrl+o" #(toggle-settings-bar))
   (Mousetrap/bind "ctrl+u" #(show-dev-tools))
+  (Mousetrap/bind "ctrl+m" #(theme/play-theme))
   (dommy/listen! (sel1 :#contacts-button) :click #(toggle-contacts-bar))
 (dommy/listen! (sel1 :#settings-button) :click #(toggle-settings-bar)))
 
