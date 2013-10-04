@@ -32,7 +32,7 @@
 (defn- get-activity [stanza]
   (let [activity (-> stanza (.children) (aget 0) (.name))]
     (cond
-      (= activity "cha:composing") :active
+      (= activity "cha:composing") :typing
       (= activity "cha:paused") :paused
       :else :none)))
 
@@ -113,11 +113,9 @@
                       (.send client (roster-element))))
       (.on "error" (fn [err]
                      (println "Error!!!: " err))))
-    {:account-jid (:user account)
-     :xmpp-client client}))
+    client))
 
-(defn event-stream [{:keys [xmpp-client account-jid]}]
+(defn event-stream [xmpp-client]
   (let [stream (.fromEventTarget bacon xmpp-client "stanza")]
     (-> stream
-        (.map convert-stanza-event)
-        (.map #(conj % [:account-jid account-jid])))))
+        (.map convert-stanza-event))))

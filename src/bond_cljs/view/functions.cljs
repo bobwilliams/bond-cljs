@@ -3,7 +3,7 @@
   (:require [clojure.string :as str]
             [dommy.utils :as utils]
             [dommy.core :as dommy]
-            [bond-cljs.view.contact-list :as contacts]
+            [bond-cljs.view.contacts-bar :as contacts-bar]
             [bond-cljs.theme :as theme]))
 
 (defn render-page! [page]
@@ -30,12 +30,12 @@
   (Mousetrap/bind "ctrl+u" #(show-dev-tools))
   (Mousetrap/bind "ctrl+m" #(theme/play-theme))
   (dommy/listen! (sel1 :#contacts-button) :click #(toggle-contacts-bar))
-(dommy/listen! (sel1 :#settings-button) :click #(toggle-settings-bar)))
+  (dommy/listen! (sel1 :#settings-button) :click #(toggle-settings-bar)))
 
 (defn bind-event-stream [event-stream]
   (let [chat-stream (.filter event-stream #(= (:type %) :message))
         status-stream (.filter event-stream #(= (:type %) :status-update))
         activity-stream (.filter event-stream #(= (:type %) :activity))
         roster-stream (.filter event-stream #(= (:type %) :roster))]
-    (contacts/react-to-status-stream status-stream)
-    (contacts/react-to-roster-stream roster-stream)))
+    (contacts-bar/react-to-status-stream status-stream)
+    (contacts-bar/react-to-roster-stream roster-stream)))

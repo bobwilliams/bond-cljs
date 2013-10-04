@@ -1,39 +1,24 @@
 (ns bond-cljs.corse
 	(:require [cljs.nodejs :as node]
+            [bond-cljs.config :as config]
             [bond-cljs.view.templates :as templates]
             [bond-cljs.view.functions :as vfun]
             [bond-cljs.chat :as chat]
+            [bond-cljs.accounts :as accounts]
             [bond-cljs.global :as g]))
 
-(def fs (node/require "fs"))
-(def user-home (or (.-HOME process/env) (.-HOMEPATH process/env) (.-USERPROFILE process/env)))
-(def bond-dir (str user-home "/.bond-cljs"))
-(def bond-conf (str bond-dir "/" "conf.json"))
-
-;; Ensure Bond Directory Exists
-(when-not (.existsSync fs bond-dir)
-  (.mkdirSync fs bond-dir))
-
-;; Ensure Bond Config Exists
-(when-not (.existsSync fs bond-conf)
-  (.writeFileSync fs bond-conf "{}"))
-
-;; Read config file
-(def config-json (.readFileSync fs bond-conf))
-(def config (-> config-json JSON/parse (js->clj :keywordize-keys true)))
-(reset! g/accounts (:accounts config))
+;; Initialize Configuration
+(config/initialize-configuration!)
 
 ;; Render Initial Page
-(vfun/render-page! (templates/main-page (or (:display-name config) "User")))
+(vfun/render-page! (templates/main-page (or (:display-name @g/config) "User")))
 
 ;; Bind Page Events
 (vfun/bind-events)
 
 ;; Connect Accounts
-(def chat-connections (map chat/connect-account @g/accounts))
+(doseq [account (:accounts @g/config)]
+  (accounts/add-new-account! account))
 
-;; Create Chat Event Observable
-(def chat-streams (map chat/event-stream chat-connections))
-
-;; Bind Event Streams to UI
-(doseq [s chat-streams] (vfun/bind-event-stream s))
+;; Bind Event Stream to UI
+(vfun/bind-event-stream g/in-stream)

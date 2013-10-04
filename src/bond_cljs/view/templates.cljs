@@ -10,8 +10,8 @@
     [:a#settings-button.glyphicon.glyphicon-cog {:href "#"}]
     [:h1 username]])
 
-(deftemplate contacts-list []
-  [:div#contacts-bar.side-bar {:ng-controller "ContactListCtrl"}
+(deftemplate contacts-bar []
+  [:div#contacts-bar.side-bar {:ng-controller "ContactsBarCtrl"}
     [:h3 "Contacts"]
     [:a {:href "#" :ng-repeat "contact in contacts"}
       [:i.glyphicon.glyphicon-user {:style "{{contactStatusCss(contact)}}"}]
@@ -40,7 +40,7 @@
       [:div.panel.panel-default
         [:div.panel-heading
           [:h3.panel-title "{{isNewAccount ? 'Create Account' : 'Edit Account'}}"]
-          [:a.delete-account {:href "" :ng-if "!isNewAccount" :ng-click "deleteAccount()"}]]
+          [:a.delete-account {:href "" :ng-if "!isNewAccount" :ng-click "deleteAccount(currentAccount)"}]]
         [:div.panel-body
           [:div
             [:div.form-group
@@ -62,7 +62,7 @@
               [:label
                 [:input {:type "checkbox" :name "{{option.key}}" :ng-model "currentAccount[option.key]"} "{{option.label}}"]]]]]
         [:div.panel-footer
-          [:button.btn.btn-sm.btn-primary.pull-left {:type "submit" :ng-disabled "accountForm.$invalid" :ng-click "saveAccount()"} "Save"
+          [:button.btn.btn-sm.btn-primary.pull-left {:type "submit" :ng-disabled "accountForm.$invalid" :ng-click "saveAccount(currentAccount)"} "Save"
             [:span.glyphicon.glyphicon-ok]]
           [:a.btn.btn-sm.btn-danger.pull-right {:type "submit" :ng-click "goToScreen('home')"} "Cancel"]]]]) 
 
@@ -77,7 +77,7 @@
       [:a.btn.btn-sm.btn-default.pull-right {:href "" :ng-click "editAccount(currentAccount)"} "Cancel"]]])
 
 (deftemplate settings-bar []
-  [:div#settings-bar.side-bar {:ng-controller "SettingsCtrl"}
+  [:div#settings-bar.side-bar {:ng-controller "SettingsBarCtrl"}
     [:h3 "Settings"]
     [:div#settings-content
       (settings-home)]])
@@ -88,6 +88,6 @@
 (deftemplate main-page [username]
   [:div#main-page
     (nav-bar username)
-    (contacts-list)
+    (contacts-bar)
     (settings-bar)
     (chat-area)])

@@ -1,14 +1,18 @@
-(ns bond-cljs.view.settings
+(ns bond-cljs.view.settings-bar
   (:require-macros [bond-cljs.angular.macros :refer [def.controller defn.scope def.directive fnj]])
   (:require [cljs.nodejs :as node]
             [bond-cljs.view.templates :as templates]
             [bond-cljs.view.functions :as vfun]
+            [bond-cljs.accounts :as accounts]
             [bond-cljs.global :as g]
             [dommy.core :refer [html]])
   (:use [bond-cljs.angular.util :only [module]]))
 
 (def m (module "bond.settings" []))
 (def scope (atom nil))
+
+(defn apply-scope [fun]
+  (.$apply @scope fun))
 
 (defn find-provider [id]
   (->> @g/providers (filter #(= id (:id %))) (first)))
@@ -19,13 +23,13 @@
        (compiler t)
        (t scope)))
 
-(def.controller m SettingsCtrl [$scope $compile]
+(def settings-pages {:home (templates/settings-home)
+                     :choose-provider (templates/settings-choose-provider)
+                     :edit-account (templates/settings-edit-account)
+                     :confirm-delete-account (templates/settings-confirm-delete)})
+
+(def.controller m SettingsBarCtrl [$scope $compile]
   (reset! scope $scope)
-  
-  (def settings-pages {:home (compile-template $scope $compile (templates/settings-home))
-                       :choose-provider (compile-template $scope $compile (templates/settings-choose-provider))
-                       :edit-account (compile-template $scope $compile (templates/settings-edit-account))
-                       :confirm-delete-account (compile-template $scope $compile (templates/settings-confirm-delete))})
       
   (doto $scope
     (aset "accounts" (clj->js @g/accounts))
@@ -34,14 +38,18 @@
     (aset "currentProvider" nil)
     (aset "isNewAccount" false))
   
+  (defn.scope compile-template [template]
+    (compile-template))
+  
   (defn.scope goToScreen [screen]
+    (println "going to " screen)
     (let [screen-template (get settings-pages 
                                (keyword screen)
-                               (:home settings-pages))]
-      (.html (js/$ "#settings-content") screen-template)))
+                               (:home settings-pages))
+          compiled-template (compile-template $scope $compile screen-template)]
+      (.html (js/$ "#settings-content") compiled-template)))
   
   (defn.scope editAccount [account]
-    (println "SettingsCtrl " (JSON/stringify account))
     (doto $scope
       (aset "currentAccount" account)
       (aset "currentProvider" (clj->js (find-provider (.-provider account))))
@@ -55,8 +63,14 @@
       (aset "isNewAccount" true)
       (.goToScreen "edit-account")))
   
-  (defn.scope saveAccount []
-    (.goToScreen $scope "home")) ;; TODO: Save Account
+  (defn.scope saveAccount [account]
+    (let [clj-account (assoc (js->clj account :keywordize-keys true) :provider (.-id (.-currentProvider $scope)))]
+      (if (.-isNewAccount $scope)
+        (accounts/add-new-account! clj-account)
+        (accounts/update-account! clj-account)))
+    (aset $scope "accounts" (clj->js @g/accounts))
+    (.goToScreen $scope "home"))
   
-  (defn.scope deleteAccount []
-    (.goToScreen $scope "home"))) ;; TODO: Delete Account
+  (defn.scope deleteAccount [account]
+    (accounts/delete-account! account)
+    (.goToScreen $scope "home")))

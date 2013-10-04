@@ -1,9 +1,16 @@
 (ns bond-cljs.global
-  (:require [bond-cljs.util :as u]))
+  (:require [bond-cljs.util :as u]
+            [cljs.nodejs :as node]))
 
-;; TODO: Add watchers to update angular scopes
+(def bacon (.-Bacon (node/require "baconjs")))
+
+(def config (atom {}))
 (def contact-list (atom (u/contact-sorted-set)))
+
 (def accounts (atom []))
+(def in-stream (bond-cljs.global.bacon.Bus.))
+(def out-stream (bond-cljs.global.bacon.Bus.))
+
 (def providers (atom [{:id "gtalk"
                        :name "GTalk"
                        :options [{:label "Label"
@@ -20,4 +27,7 @@
                                   :type "text"}
                                  {:label "Port"
                                   :key "port"
-                                  :type "text"}]}]))
+                                  :type "text"}
+                                 {:label "Auto Reconnect"
+                                  :key "reconnect"
+                                  :type "bool"}]}]))

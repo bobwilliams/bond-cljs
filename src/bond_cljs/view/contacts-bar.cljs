@@ -1,4 +1,4 @@
-(ns bond-cljs.view.contact-list
+(ns bond-cljs.view.contacts-bar
   (:require-macros [bond-cljs.angular.macros :refer [def.controller defn.scope fnj]])
   (:require [clojure.string :as cs]
             [cljs.nodejs :as node]
@@ -23,7 +23,7 @@
     (reset! g/contact-list contacts-set)
     (apply-scope #(aset @scope "contacts" js-contacts))))
 
-(def.controller m ContactListCtrl [$scope]
+(def.controller m ContactsBarCtrl [$scope]
   (reset! scope $scope)
   (aset $scope "contacts" (clj->js @g/contact-list))
   
