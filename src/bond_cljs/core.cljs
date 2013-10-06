@@ -5,10 +5,14 @@
             [bond-cljs.view.functions :as vfun]
             [bond-cljs.chat :as chat]
             [bond-cljs.accounts :as accounts]
+            [bond-cljs.watchers :as watchers]
             [bond-cljs.global :as g]))
 
 ;; Initialize Configuration
 (config/initialize-configuration!)
+
+;; Setup Watches
+(watchers/add-watches!)
 
 ;; Render Initial Page
 (vfun/render-page! (templates/main-page (or (:display-name @g/config) "User")))

@@ -40,7 +40,7 @@
       [:div.panel.panel-default
         [:div.panel-heading
           [:h3.panel-title "{{isNewAccount ? 'Create Account' : 'Edit Account'}}"]
-          [:a.delete-account {:href "" :ng-if "!isNewAccount" :ng-click "deleteAccount(currentAccount)"}]]
+          [:a.delete-account {:href "" :ng-if "!isNewAccount" :ng-click "goToScreen('confirm-delete-account')"} "Delete"]]
         [:div.panel-body
           [:div
             [:div.form-group
@@ -64,7 +64,7 @@
         [:div.panel-footer
           [:button.btn.btn-sm.btn-primary.pull-left {:type "submit" :ng-disabled "accountForm.$invalid" :ng-click "saveAccount(currentAccount)"} "Save"
             [:span.glyphicon.glyphicon-ok]]
-          [:a.btn.btn-sm.btn-danger.pull-right {:type "submit" :ng-click "goToScreen('home')"} "Cancel"]]]]) 
+          [:a.btn.btn-sm.btn-danger.pull-right {:type "submit" :ng-click "goToScreen('home')"} "Cancel"]]]])
 
 (deftemplate settings-confirm-delete []
   [:div#confirm-delete-account.panel.panel-default
@@ -73,7 +73,7 @@
     [:div.panel-body
       [:p "Are you sure you want to delete this account ({{ currentAccount.label }})?"]]
     [:div.panel-footer
-      [:a.btn.btn-sm.btn-danger.pull-left {:href "" :ng-click "deleteAccount(true)"} "Yes, Delete Account"]
+      [:a.btn.btn-sm.btn-danger.pull-left {:href "" :ng-click "deleteAccount(currentAccount.id)"} "Yes, Delete Account"]
       [:a.btn.btn-sm.btn-default.pull-right {:href "" :ng-click "editAccount(currentAccount)"} "Cancel"]]])
 
 (deftemplate settings-bar []

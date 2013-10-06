@@ -42,8 +42,12 @@
    :to (.-to attrs)
    :id (.-id attrs)})
 
-(defn- presence-element [] 
+(defn- presence-element []
   (bond-cljs.chat.xmpp.Element. "presence"))
+
+;; TODO: Verify
+(defn- disconnect-presence-element []
+  (bond-cljs.chat.xmpp.Element. "presence" (js-obj "type" "unavailable")))
 
 (defn- roster-element []
   (-> (bond-cljs.chat.xmpp.Element. "iq" (js-obj "type" "get"))
@@ -119,3 +123,6 @@
   (let [stream (.fromEventTarget bacon xmpp-client "stanza")]
     (-> stream
         (.map convert-stanza-event))))
+
+(defn disconnect [xmpp-client]
+  (.send xmpp-client (disconnect-presence-element)))

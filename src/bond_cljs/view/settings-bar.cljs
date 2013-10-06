@@ -42,7 +42,6 @@
     (compile-template))
   
   (defn.scope goToScreen [screen]
-    (println "going to " screen)
     (let [screen-template (get settings-pages 
                                (keyword screen)
                                (:home settings-pages))
@@ -63,6 +62,7 @@
       (aset "isNewAccount" true)
       (.goToScreen "edit-account")))
   
+  ;; TODO: Replace manual account update
   (defn.scope saveAccount [account]
     (let [clj-account (assoc (js->clj account :keywordize-keys true) :provider (.-id (.-currentProvider $scope)))]
       (if (.-isNewAccount $scope)
@@ -71,6 +71,7 @@
     (aset $scope "accounts" (clj->js @g/accounts))
     (.goToScreen $scope "home"))
   
-  (defn.scope deleteAccount [account]
-    (accounts/delete-account! account)
+  (defn.scope deleteAccount [account-id]
+    (accounts/delete-account! account-id)
+    (aset $scope "accounts" (clj->js @g/accounts))
     (.goToScreen $scope "home")))

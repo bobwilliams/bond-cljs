@@ -57,6 +57,12 @@ This event represents a connection to the xmpp server.
 
 * __type__ - :connected
 
+#### Connection Failed Event
+
+This event represents a failed connection to the xmpp server.
+
+* __type__ - :connection-failed
+
 ## Outgoing
 
 Events going out from bond to the XMPP module

@@ -18,7 +18,7 @@
 (defn time-m []
   (.getTime (js/Date.)))
 
-(defn replace-contacts [contacts-set]
+(defn replace-contacts! [contacts-set]
   (let [js-contacts (clj->js contacts-set)]
     (reset! g/contact-list contacts-set)
     (apply-scope #(aset @scope "contacts" js-contacts))))
@@ -46,27 +46,35 @@
 (defn handle-status-events [events]
   (let [contacts @g/contact-list
         updated-contacts (.reduce events #(update-contact-status %1 %2) contacts)]
-    (replace-contacts (make-set updated-contacts))))
+    (replace-contacts! (make-set updated-contacts))))
 
 (defn react-to-status-stream [status-stream]
   (let [buffered-stream (.bufferWithTime status-stream 100)]
     (.onValue buffered-stream handle-status-events)))
 
-(defn maybe-update-name [contact jid name]
+(defn maybe-update-name [contact jid name account-id]
   (if (= jid (:jid contact))
-    (conj contact [:name name])
+    (assoc contact :name name :accounts (conj (:accounts contact) account-id))
     contact))
 
-(defn update-contact-from-roster-entry [contacts {:keys [jid name]}]
+(defn update-contact-from-roster-entry [account-id contacts {:keys [jid name]}]
   (let [disp-name (or name jid)]
     (if (not-any? #(= jid (:jid %)) contacts)
-      (conj contacts {:jid jid :name disp-name :status :offline})
-      (map #(maybe-update-name % jid disp-name) contacts))))
+      (conj contacts {:jid jid :name disp-name :status :offline :accounts #{account-id}})
+      (map #(maybe-update-name % jid disp-name account-id) contacts))))
 
-(defn handle-roster-event [{:keys [to to-resource roster]}]
+(defn handle-roster-event [{:keys [to to-resource roster account-id]}]
   (let [contacts @g/contact-list
-        updated-contacts (reduce update-contact-from-roster-entry contacts roster)]
-    (replace-contacts (make-set updated-contacts))))
+        updated-contacts (reduce #(update-contact-from-roster-entry account-id %1 %2) contacts roster)]
+    (replace-contacts! (make-set updated-contacts))))
 
 (defn react-to-roster-stream [roster-stream]
   (.onValue roster-stream handle-roster-event))
+
+(defn remove-account [account-id contact]
+  (assoc contact :accounts (disj (:accounts contact) account-id)))
+
+(defn clear-contacts-for-account! [account-id]
+  (let [list-removed-account (map #(remove-account account-id %) @g/contact-list)
+        updated-contacts (remove #(= (:accounts %) #{}) list-removed-account)]
+    (replace-contacts! updated-contacts)))

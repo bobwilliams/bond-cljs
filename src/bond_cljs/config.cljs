@@ -28,14 +28,15 @@
 (defn config-account [account]
   (dissoc account :client :unplug-fn :stream))
 
-(defn add-watches! []
-  (add-watch g/config :conf-write (fn [_ _ _ new] (write-config! new)))
-  (add-watch g/accounts :conf-update (fn [_ _ _ new] (swap! g/config assoc :accounts (map config-account new)))))
+(defn handle-config-change [old new]
+  (write-config! new))
+
+(defn handle-accounts-update [old new]
+  (swap! g/config assoc :accounts (map config-account new)))
 
 ;; TODO: Chicken or egg with accounts!
 (defn initialize-configuration! []
   (ensure-bond-dir-exists)
   (ensure-bond-conf-file-exists)
   (let [config (read-config-file)]
-    (reset! g/config config)
-    (add-watches!)))
+    (reset! g/config config)))
