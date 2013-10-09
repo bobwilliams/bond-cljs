@@ -10,7 +10,7 @@
                            "bitDepth" 16
                            "sampleRate" 44100))
 
-(defn play-theme []
+(defn play-theme! []
   (let [decoder (.Decoder lame)
         speaker (speaker. audio-options)
         input-stream (.createReadStream fs theme-file)]

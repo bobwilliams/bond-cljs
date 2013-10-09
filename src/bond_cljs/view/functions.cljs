@@ -15,24 +15,24 @@
 (defn replace-element! [id template]
   (dommy/replace-contents! (sel-id id) template))
 
-(defn toggle-contacts-bar []
+(defn toggle-contacts-bar! []
   (dommy/toggle-class! (sel1 :body) "contacts-bar-expanded"))
 
-(defn toggle-settings-bar []
+(defn toggle-settings-bar! []
   (dommy/toggle-class! (sel1 :body) "settings-bar-expanded"))
 
-(defn show-dev-tools []
+(defn show-dev-tools! []
   (-> (js/require "nw.gui") (.-Window) (.get) (.showDevTools)))
 
-(defn bind-events []
-  (Mousetrap/bind "ctrl+p" #(toggle-contacts-bar))
-  (Mousetrap/bind "ctrl+o" #(toggle-settings-bar))
-  (Mousetrap/bind "ctrl+u" #(show-dev-tools))
-  (Mousetrap/bind "ctrl+m" #(theme/play-theme))
-  (dommy/listen! (sel1 :#contacts-button) :click #(toggle-contacts-bar))
-  (dommy/listen! (sel1 :#settings-button) :click #(toggle-settings-bar)))
+(defn bind-events! []
+  (Mousetrap/bind "ctrl+p" #(toggle-contacts-bar!))
+  (Mousetrap/bind "ctrl+o" #(toggle-settings-bar!))
+  (Mousetrap/bind "ctrl+u" #(show-dev-tools!))
+  (Mousetrap/bind "ctrl+m" #(theme/play-theme!))
+  (dommy/listen! (sel1 :#contacts-button) :click #(toggle-contacts-bar!))
+  (dommy/listen! (sel1 :#settings-button) :click #(toggle-settings-bar!)))
 
-(defn bind-event-stream [event-stream]
+(defn bind-event-stream! [event-stream]
   (let [chat-stream (.filter event-stream #(= (:type %) :message))
         status-stream (.filter event-stream #(= (:type %) :status-update))
         activity-stream (.filter event-stream #(= (:type %) :activity))

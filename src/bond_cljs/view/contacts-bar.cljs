@@ -72,7 +72,7 @@
   (.onValue roster-stream handle-roster-event))
 
 (defn remove-account [account-id contact]
-  (assoc contact :accounts (disj (:accounts contact) account-id)))
+  (assoc contact :accounts (disj (set (:accounts contact)) account-id)))
 
 (defn clear-contacts-for-account! [account-id]
   (let [list-removed-account (map #(remove-account account-id %) @g/contact-list)
