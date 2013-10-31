@@ -13,9 +13,11 @@
 (deftemplate contacts-bar []
   [:div#contacts-bar.side-bar {:ng-controller "ContactsBarCtrl"}
     [:h3 "Contacts"]
-    [:a {:href "#" :ng-repeat "contact in contacts"}
-      [:i.glyphicon.glyphicon-user {:style "{{contactStatusCss(contact)}}"}]
-      [:span "{{contact.name}}"]]])
+    [:div.panel.panel-default {:ng-repeat "group in contactsList"}
+      [:div.panel-heading
+        [:h3.panel-title "{{ group.name || 'Contacts' }}"]]
+      [:div.panel-body
+        [:a.buddy {:href "" :class "buddy-state-{{contact.status}}" :ng-repeat "contact in group.contacts"} "{{contact.name}}"]]]])
 
 (deftemplate settings-home []
   [:div.panel.panel-default

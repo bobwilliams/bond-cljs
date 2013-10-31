@@ -5,7 +5,7 @@
 (def bacon (.-Bacon (node/require "baconjs")))
 
 (def config (atom {}))
-(def contact-list (atom (u/contact-sorted-set)))
+(def contact-list (atom (u/group-sorted-set)))
 
 (def accounts (atom []))
 (def in-stream (bond-cljs.global.bacon.Bus.))

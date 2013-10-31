@@ -72,10 +72,16 @@
          {:type :status-update
           :status (get-status stanza attrs)}))
 
+(defn roster-entry-group [entry]
+  (if-let [group-tag (.getChild entry "group")]
+    (-> group-tag (.-children) (aget 0))
+    "Default"))
+
 (defn- convert-roster-entry [entry]
   (let [attrs (.-attrs entry)]
     {:jid (-> attrs (.-jid))
-     :name (-> attrs (.-name))}))
+     :name (-> attrs (.-name))
+     :group (roster-entry-group entry)}))
 
 (defn- convert-roster [stanza attrs]
   {:type :roster

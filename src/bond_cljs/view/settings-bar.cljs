@@ -38,9 +38,6 @@
     (aset "currentProvider" nil)
     (aset "isNewAccount" false))
   
-  (defn.scope compile-template [template]
-    (compile-template))
-  
   (defn.scope goToScreen [screen]
     (let [screen-template (get settings-pages 
                                (keyword screen)

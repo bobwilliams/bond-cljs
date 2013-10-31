@@ -1,5 +1,5 @@
 (ns bond-cljs.core
-	(:require [cljs.nodejs :as node]
+  (:require [cljs.nodejs :as node]
             [bond-cljs.config :as config]
             [bond-cljs.view.templates :as templates]
             [bond-cljs.view.functions :as vfun]
